@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Realtime location tracker</title>
+
+    <!-- Leaflet css -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+  </body>
+</html>
+
+<!-- leaflet js -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+  // Map initialization
+  var map = L.map("map").setView([41.327752, 69.3051058], 13);
+
+  //   osm layer
+  var osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution:
+      '&copy; <a href = "https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  });
+  osm.addTo(map);
+
+  if (!navigator.geolocation) {
+    console.log("Your browser doesn't support geolocation feature!");
+  } else {
+    setInterval(() => {
+      navigator.geolocation.getCurrentPosition(getPosition);
+    }, 5000);
+  }
+  let marker, circle;
+  function getPosition(position) {
+    let lat = position.coords.latitude;
+    let long = position.coords.longitude;
+    let accuracy = position.coords.accuracy;
+
+    if (marker) {
+      map.removeLayer(marker);
+    }
+
+    if (circle) {
+      map.removeLayer(circle);
+    }
+
+    marker = L.marker([lat, long]);
+    circle = L.circle([lat, long], { radius: accuracy });
+
+    let featureGroup = L.featureGroup([marker, circle]).addTo(map);
+
+    map.fitBounds(featureGroup.getBounds());
+
+    console.log(
+      "Your cordinate is Lat: " +
+        lat +
+        " Long : " +
+        long +
+        " Accuracy " +
+        accuracy
+    );
+  }
+</script>
